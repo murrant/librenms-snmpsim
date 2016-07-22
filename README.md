@@ -38,3 +38,11 @@ Community: <The name of the file you want to simulate>
 
 You may either remove then re-add the device or simply change the SNMP community string.
 Re-run discovery and poller.
+
+
+## Adding captures
+
+See the snmpsim documentation about capture snmprec files.
+
+
+`translate-snmpwalk.py` is provide to convert user provide snmpwalks to a usable file format.

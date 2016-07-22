@@ -46,8 +46,6 @@ def translate(target):
     return out
 
 
-data = {}
-
 with open(args.inputfile, "r") as f:
     # set up items before looping
     number_pattern = re.compile("^([A-Za-z2346]+: )(.*\((?P<num1>\d+)\)|(?P<num2>\d+) octets)")
@@ -82,11 +80,9 @@ with open(args.inputfile, "r") as f:
             elif match.group('num2') is not None:
                 val += match.group('num2')
 
+        if not val:
+           val = '""'
 
         # print out the end result
-        data[oid] = val
-
-data.sort()
-for oid, value in data.items():
-    print oid + ' = ' + value
+        print oid + ' = ' + val
 
