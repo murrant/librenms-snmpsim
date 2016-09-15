@@ -1,0 +1,9 @@
+[Unit]
+Description=Restart snmpsimd
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemctl restart snmpsimd.service
+
+[Install]
+WantedBy=multi-user.target

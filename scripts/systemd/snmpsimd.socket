@@ -1,0 +1,8 @@
+[Unit]
+Description=SNMP Simulator Socket Activation
+
+[Socket]
+ListenDatagram=1161
+
+[Install]
+WantedBy=multi-user.target

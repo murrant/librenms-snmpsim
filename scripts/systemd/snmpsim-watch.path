@@ -1,0 +1,10 @@
+[Unit]
+Description=Watch the snmpsim captures directory for changes
+Documentation=man:systemd.path
+
+[Path]
+# Set this to the location of your captures
+PathModified=/home/murrant/projects/librenms-snmpsim/captures
+
+[Install]
+WantedBy=multi-user.target

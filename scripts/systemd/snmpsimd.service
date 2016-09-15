@@ -1,0 +1,9 @@
+[Unit]
+Description=SNMP Simulator
+
+[Service]
+User=murrant
+ExecStart=/usr/bin/snmpsimd.py --data-dir=/home/murrant/projects/librenms-snmpsim/captures --agent-udpv4-endpoint=127.0.0.1:1161
+
+[Install]
+WantedBy=multi-user.target
