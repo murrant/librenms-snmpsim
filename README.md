@@ -33,6 +33,21 @@ Community: <The name of the file you want to simulate>
 
 ```
 
+### systemd fanciness
+Using systemd, we can automatically start snmpsimd.py whenever a connection is started to udp:1161
+and restart it whenever a capture file is changed, added, or removed.
+
+Copy the systemd files to /etc/systemd/system
+```
+cp scripts/systemd/* /etc/systemd/system/
+```
+Edit snmpsimd.service and snmpsim-watch.path and put in the correct paths and user.
+
+Enable and start the proper units:
+```
+systemctl enable --now snmpsimd.socket snmpsim-watch.path
+```
+
 
 ### Changing the simulated device
 
