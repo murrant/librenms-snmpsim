@@ -69,6 +69,7 @@ Alternatively, you could add multiple hostname alias' to the /etc/hosts file.
 ## Creating capture files
 
 Two formats are allowed snmprec and snmpwalk.
+Try to review files for private information before submitting to this repository.
 
 ### Snmprec
 Basic usage
