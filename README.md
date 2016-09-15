@@ -21,18 +21,6 @@ Or run by hand
 snmpsimd.py --data-dir=./captures --agent-udpv4-endpoint=127.0.0.1:1161
 ```
 
-### Add a new host to LibreNMS
-Use either the command line or the webui to add a new host to LibreNMS.
-
-Hostname: snmpsim (or anything you added to hosts)
-Community: <The name of the file you want to simulate>
-
-
-```
-./addhost.php snmpsim ucd v2c 1161
-
-```
-
 ### systemd fanciness
 Using systemd, we can automatically start snmpsimd.py whenever a connection is started to udp:1161
 and restart it whenever a capture file is changed, added, or removed.
@@ -46,6 +34,18 @@ Edit snmpsimd.service and snmpsim-watch.path and put in the correct paths and us
 Enable and start the proper units:
 ```
 systemctl enable --now snmpsimd.socket snmpsim-watch.path
+```
+
+
+### Add a new host to LibreNMS
+Use either the command line or the webui to add a new host to LibreNMS.
+
+Hostname: snmpsim (or anything you added to hosts)
+Community: <The name of the file you want to simulate>
+
+```
+./addhost.php snmpsim ucd v2c 1161
+
 ```
 
 
