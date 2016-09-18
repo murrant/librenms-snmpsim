@@ -48,7 +48,8 @@ def translate(target):
 
 with open(args.inputfile, "r") as f:
     # set up items before looping
-    number_pattern = re.compile("^([A-Za-z2346]+: )(.*\((?P<num1>\d+)\)|(?P<num2>\d+) octets)")
+    number_pattern = re.compile("^([A-Za-z2346]+: )(.*\((?P<num1>-?\d+)\)|(?P<num2>-?\d+) (octets|milli-seconds|milliseconds|seconds))")
+    wrong_type_pattern = re.compile("Wrong Type \(.*\): ")
 
     for line in f:
         #skip non data lines
@@ -70,6 +71,9 @@ with open(args.inputfile, "r") as f:
                 sys.stderr.write("Error: translation failed: " + line+ "\n")
                 sys.exit(1)
             val = "OID: " + out
+
+        # remove wrong type warnings
+        val = wrong_type_pattern.sub('', val)
 
         # remove fancy formatting on numbers
         match = number_pattern.match(val)
