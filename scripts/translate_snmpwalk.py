@@ -88,5 +88,5 @@ with open(args.inputfile, "r") as f:
            val = '""'
 
         # print out the end result
-        print oid + ' = ' + val
+        print(oid + ' = ' + val)
 
