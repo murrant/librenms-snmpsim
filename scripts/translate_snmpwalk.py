@@ -50,11 +50,22 @@ with open(args.inputfile, "r") as f:
     # set up items before looping
     number_pattern = re.compile("^([A-Za-z2346]+: )(.*\((?P<num1>-?\d+)\)|(?P<num2>-?\d+) (octets|milli-seconds|milliseconds|seconds))")
     wrong_type_pattern = re.compile("Wrong Type \(.*\): ")
+    hexstring = False
+    temp_oid = ""
+    temp_val = ""
 
     for line in f:
-        #skip non data lines
+        #skip non data lines unless we are processing a HEX-STRING
         if "=" not in line:
+            if hexstring:
+                temp_val += line.strip('\n')
             continue
+        elif hexstring:
+            print(temp_oid + ' = ' + temp_val)
+            hexstring = False
+            temp_oid = ""
+            temp_val = ""
+
 
         parts = line.split(" =")
 
@@ -85,8 +96,13 @@ with open(args.inputfile, "r") as f:
                 val += match.group('num2')
 
         if not val:
-           val = '""'
+            val = '""'
 
-        # print out the end result
-        print(oid + ' = ' + val)
+        if val.startswith("Hex-STRING: "):
+            hexstring = True
+            temp_oid = oid
+            temp_val = val
+        else:
+            # print out the end result
+            print(oid + ' = ' + val)
 
