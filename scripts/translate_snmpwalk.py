@@ -67,7 +67,7 @@ with open(args.inputfile, "r") as f:
             temp_val = ""
 
 
-        parts = line.split(" =")
+        parts = line.split(" = ")
 
         # transalte oids and skip the line if the translation fails
         oid = translate(parts[0])
@@ -75,7 +75,7 @@ with open(args.inputfile, "r") as f:
             sys.stderr.write("Error: translation failed: " + line+ "\n")
             sys.exit(1)
 
-        val = parts[1].strip()
+        val = parts[1].strip('\n')
         if val.startswith("OID: "):
             out = translate(val[5:])
             if not out:
@@ -102,7 +102,7 @@ with open(args.inputfile, "r") as f:
             hexstring = True
             temp_oid = oid
             temp_val = val
-        else:
+        elif val != "No more variables left in this MIB View (It is past the end of the MIB tree)":
             # print out the end result
             print(oid + ' = ' + val)
 
