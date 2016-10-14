@@ -60,7 +60,7 @@ def translate(target):
         return target
 
     # escape quotes
-    target = target.replace('"','\\"')
+#    target = target.replace('"','\\"')
 
     # attempt to translate the string
     out = check_output(snmpOptions + [target]).decode().strip()
@@ -114,9 +114,9 @@ with open(args.inputfile, "r") as f:
             snmpType = snmpTypes[valParts[0]]
             value = valParts[1].lstrip(' ')
         else:
-            # um, no type data, make something up
+            # probably captured with -Ot
             if rawVal.isdigit():
-                snmpType = '2'
+                snmpType = '67'
             else:
                 snmpType = '4'
             value = rawVal
