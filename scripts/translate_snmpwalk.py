@@ -8,6 +8,27 @@ parser.add_argument("-m", dest="modules", help="snmpwalk modules", action='appen
 parser.add_argument("-M", dest="moddirs", help="snmpwalk directories", action='append')
 args = parser.parse_args()
 
+format = 'snmprec'
+
+# define the types table
+snmpTypes    = {
+    'STRING' : '4',
+    'OID' : '6',
+    'Hex-STRING' : '4x',
+    'Timeticks' : '67',
+    'INTEGER' : '2',
+    'OCTET STRING' : '4',
+    'BITS' : '4', # not sure if this is right
+    'Integer32' : '2',
+    'NULL' : '5',
+    'OBJECT IDENTIFIER' : '6',
+    'IpAddress' : '64',
+    'Counter32' : '65',
+    'Gauge32' : '66',
+    'Opaque' : '68',
+    'Counter64' : '70'
+}
+
 # build the base snmptranslate command
 # -On number output
 # -IR Random Access lookups, for mixed number and names
@@ -42,31 +63,34 @@ def translate(target):
     target = target.replace('"','\\"')
 
     # attempt to translate the string
-    out = check_output(snmpOptions + [target]).strip()
+    out = check_output(snmpOptions + [target]).decode().strip()
     return out
 
 
 with open(args.inputfile, "r") as f:
     # set up items before looping
-    number_pattern = re.compile("^([A-Za-z2346]+: )(.*\((?P<num1>-?\d+)\)|(?P<num2>-?\d+) (octets|milli-seconds|milliseconds|seconds))")
+    number_pattern = re.compile("^(.*\((?P<num1>-?\d+)\)|(?P<num2>-?\d+) (octets|milli-seconds|milliseconds|seconds|KBytes|Bytes))")
     wrong_type_pattern = re.compile("Wrong Type \(.*\): ")
     hexstring = False
     temp_oid = ""
-    temp_val = ""
+    temp_value = ""
 
     for line in f:
         #skip non data lines unless we are processing a HEX-STRING
         if "=" not in line:
             if hexstring:
-                temp_val += line.strip('\n')
+                temp_value += line.strip('\n')
             continue
         elif hexstring:
-            print(temp_oid + ' = ' + temp_val)
+            if format == 'snmprec':
+                print(temp_oid.lstrip('.') + '|4x|' + temp_value.replace(' ', ''))
+            else:
+                print(temp_oid + ' = Hex-STRING: ' + temp_value)
             hexstring = False
             temp_oid = ""
-            temp_val = ""
+            temp_value = ""
 
-
+        #print(line.rstrip('\n'))
         parts = line.split(" = ")
 
         # transalte oids and skip the line if the translation fails
@@ -75,34 +99,57 @@ with open(args.inputfile, "r") as f:
             sys.stderr.write("Error: translation failed: " + line+ "\n")
             sys.exit(1)
 
-        val = parts[1].strip('\n')
-        if val.startswith("OID: "):
-            out = translate(val[5:])
+        # remove wrong type warnings
+        rawVal = wrong_type_pattern.sub('', parts[1].strip('\n'))
+
+        if rawVal == "No more variables left in this MIB View (It is past the end of the MIB tree)":
+            continue
+
+         # fix messup in previous script
+        if rawVal == '""':
+            rawVal = 'STRING: '
+
+        if ':' in rawVal:
+            valParts = rawVal.split(':', 1)
+            snmpType = snmpTypes[valParts[0]]
+            value = valParts[1].lstrip(' ')
+        else:
+            # um, no type data, make something up
+            if rawVal.isdigit():
+                snmpType = '2'
+            else:
+                snmpType = '4'
+            value = rawVal
+
+        # translate oid types
+        if snmpType == '6':
+            out = translate(value)
             if not out:
                 sys.stderr.write("Error: translation failed: " + line+ "\n")
                 sys.exit(1)
-            val = "OID: " + out
-
-        # remove wrong type warnings
-        val = wrong_type_pattern.sub('', val)
+            if format == 'snmprec':
+                value = out.lstrip('.')
+            else:
+                value = out
 
         # remove fancy formatting on numbers
-        match = number_pattern.match(val)
+        match = number_pattern.match(value)
         if match is not None:
-            val = match.group(1)
             if match.group('num1') is not None:
-                val += match.group('num1')
+                value = match.group('num1')
             elif match.group('num2') is not None:
-                val += match.group('num2')
+                value = match.group('num2')
 
-        if not val:
-            val = '""'
+#        if not value:
+#            value = '""'
 
-        if val.startswith("Hex-STRING: "):
+        if snmpType == '4x':
             hexstring = True
             temp_oid = oid
-            temp_val = val
-        elif val != "No more variables left in this MIB View (It is past the end of the MIB tree)":
+            temp_value = value
+        else:
             # print out the end result
-            print(oid + ' = ' + val)
-
+            if format == 'snmprec':
+                print(oid.strip('.') + '|' + snmpType + '|' + value.strip('"'))
+            else:
+                print(oid + ' = ' + valParts[0] + ': ' + value)
