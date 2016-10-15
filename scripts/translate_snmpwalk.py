@@ -26,7 +26,8 @@ snmpTypes    = {
     'Counter32' : '65',
     'Gauge32' : '66',
     'Opaque' : '68',
-    'Counter64' : '70'
+    'Counter64' : '70',
+    'Network Address' : '4'
 }
 
 # build the base snmptranslate command
@@ -120,6 +121,9 @@ with open(args.inputfile, "r") as f:
             else:
                 snmpType = '4'
             value = rawVal
+
+        if valParts[0] == 'Network Address':
+            value = '.'.join([str(int(y, 16)) for y in value.split(':')])
 
         # translate oid types
         if snmpType == '6':
