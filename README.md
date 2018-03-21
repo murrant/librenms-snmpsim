@@ -1,4 +1,12 @@
 # librenms-snmpsim
+
+Be sure to install snmpsim first by:
+  Making sure pip is installed
+    For CentOS 7
+      sudo yum install epel-release
+      sudo yum -y install python-pip
+      sudo pip install snmpsim
+
 snmpwalk and snmprec files for simulating devices
 
  * [Using snmpsim](#using-snmpsim)
